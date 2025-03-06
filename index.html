@@ -1,0 +1,327 @@
+
+<html>
+  <head>
+    <title>Calculator </title>
+    <style>
+      body{
+        background-color: lightpink;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+        color: firebrick;
+        font-style: ;
+        font-size: 25px;
+        
+      }
+  
+      .button {
+        width: 80px;
+        height: 40px;
+        background-color: #6969b3;
+        border: 0px;
+        color: black;
+        border-radius: 6px;
+        box-shadow: 3px 5px 5px black;
+        font-weight: bolder;
+      }
+      
+      .operator{
+        background-color: rosybrown;
+        font-size: 20px;
+      }
+      .operator:hover{
+        background-color: brown;
+      }
+      .equals{
+        background-color: darkgreen;
+      }
+      .equals:hover{
+        background-color: green;
+      }
+      .decimal{
+        background-color: darkgreen;
+      }
+      .decimal:hover{
+        background-color: green;
+      }
+      .parenthesis{
+        background-color: darkgreen;
+      }
+      .parenthesis:hover{
+        background-color: green;
+      }
+      button:hover {
+        background-color: #98c1d9;
+      }
+
+      button:active {
+        box-shadow: 2px 4px 4px black;
+      }
+
+      .flexContainer {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        align-items: baseline;
+        width: 390px;
+        row-gap: 8px;
+      }
+
+      .displayContainer {
+        display: flex;
+        justify-content: flex-end;
+        width: 390px;
+      }
+
+      #display {
+        margin-right: 20px;
+      }
+
+      .clear {
+          background-color: #d9534f; /* Red color */
+      }
+
+      .clear:hover {
+          background-color: #c9302c;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Calculator🧮</h2>
+    <div class="displayContainer">
+      <span id="display"></span>
+    </div>
+
+    <div class="flexContainer">
+      <button class="button number">7</button>
+      <button class="button number">8</button>
+      <button class="button number">9</button>
+      <button class="button operator">/</button>
+
+      <button class="button number">4</button>
+      <button class="button number">5</button>
+      <button class="button number">6</button>
+      <button class="button operator">*</button>
+
+      <button class="button number">1</button>
+      <button class="button number">2</button>
+      <button class="button number">3</button>
+      <button class="button operator">-</button>
+
+      <button class="button number">0</button>
+      <button class="button decimal">.</button>
+      <button class="button equals">=</button>
+      <button class="button operator">+</button>
+
+      <button class="button parenthesis">(</button>
+      <button class="button parenthesis">)</button>
+      <button class="button clear">C</button>
+
+    </div>
+
+    <script>
+      const numbersArr = Array.from(document.getElementsByClassName("number"));
+      const operatorsArr = Array.from(document.getElementsByClassName("operator"));
+      const parenthesisArr = Array.from(document.getElementsByClassName("parenthesis"));
+      const numberStrs = "0123456789".split("");
+
+      const clearButton = document.querySelector(".clear");
+      clearButton.addEventListener("click", () => {
+          data.displayString = "0"; // Reset display
+          data.updateDisplay();
+      });
+      const decimalButton = document.querySelector(".decimal");
+      decimalButton.addEventListener("click", () => {
+          data.appendStringNum(".");
+      });
+
+
+      const data = {
+        displayString: "0",
+        appendStringNum: (newChar) => {
+            if (newChar === ".") {
+                // Prevent multiple dots in the same number
+                const lastNumber = data.displayString.split(/[\+\-\*\/\(\)]/).pop(); // Get last number
+                if (lastNumber.includes(".")) {
+                    return; 
+                }
+            }
+
+           
+            if (numberStrs.includes(newChar) || newChar === ".") {
+                if (data.displayString === "0" && newChar !== ".") {
+                    data.displayString = "";
+                }
+                data.displayString += newChar;
+            }
+
+            data.updateDisplay();
+        },
+
+
+        appendStringOperator: (newChar) => {
+          if (numberStrs.includes(data.displayString.slice(-1)) || data.displayString.slice(-1) === ")") {
+            data.displayString += newChar;
+          }
+          data.updateDisplay();
+        },
+
+        appendStringParenthesis: (newChar) => {
+          if (newChar === ")") {
+            if (data.displayString.split("(").length <= data.displayString.split(")").length) {
+              //if there are not enough open parenthesis to add a closing parenthesis terminate early
+              return;
+            }
+            if (operatorsArr.map((operator) => operator.innerText).includes(data.displayString[data.displayString.length - 1])) {
+              //early termination for adding parenthesis after operator
+              return;
+            }
+          }
+          if (data.displayString === "0") {
+            data.displayString = "";
+            data.displayString += newChar;
+            return;
+          }
+
+          data.displayString += newChar;
+
+          data.updateDisplay();
+        },
+        updateDisplay: () => {
+          const display = document.getElementById("display");
+          display.innerText = data.displayString;
+        },
+      };
+
+      const display = document.getElementById("display");
+      display.innerText = data.displayString;
+
+      numbersArr.map((elem, i) => {
+        elem.addEventListener("click", (evt) => {
+          data.appendStringNum(elem.innerText);
+        });
+      });
+
+      operatorsArr.map((elem, i) => {
+        elem.addEventListener("click", (evt) => {
+          data.appendStringOperator(elem.innerText);
+        });
+      });
+
+      parenthesisArr.map((elem, i) => {
+        elem.addEventListener("click", (evt) => {
+          data.appendStringParenthesis(elem.innerText);
+        });
+      });
+      class TreeNode {
+        constructor(value) {
+            this.value = value;
+            this.left = null; // 3 in 3+5 
+            this.right = null; // 5 in 3+5
+        }
+      }
+
+      class ExpressionTree {
+        constructor(expression) {
+            this.root = this.buildTree(expression);
+        }
+        tokenize(expression) {
+            let tokens = expression.match(/(\d+(?:\.\d+)?)|[()+\-*/]/g);
+
+            if (!tokens) return [];
+
+            let modifiedTokens = [];
+
+            for (let i = 0; i < tokens.length; i++) {
+                if (i > 0) {
+                    if (tokens[i] === "(" && (!isNaN(tokens[i - 1]) || tokens[i - 1] === ")")) {
+                        modifiedTokens.push("*");
+                    }
+                    if (tokens[i - 1] === ")" && !isNaN(tokens[i])) {
+                        modifiedTokens.push("*");
+                    }
+                }
+
+                modifiedTokens.push(tokens[i]);
+            }
+
+            return modifiedTokens;
+        }
+
+        buildTree(expression) {
+            let tokens = this.tokenize(expression);
+            let outputQueue = [];
+            let operatorStack = [];
+            let precedence = { '+': 1, '-': 1, '*': 2, '/': 2 }; //infix to postfix
+
+            tokens.forEach(token => {
+                if (!isNaN(token)) {
+                    outputQueue.push(new TreeNode(parseFloat(token)));
+                } else if (token in precedence) {
+                    while (operatorStack.length && precedence[operatorStack[operatorStack.length - 1]] >= precedence[token]) {
+                        outputQueue.push(new TreeNode(operatorStack.pop()));
+                    }
+                    operatorStack.push(token);
+                } else if (token === '(') {
+                    operatorStack.push(token);
+                } else if (token === ')') {
+                    while (operatorStack.length && operatorStack[operatorStack.length - 1] !== '(') {
+                        outputQueue.push(new TreeNode(operatorStack.pop()));
+                    }
+                    operatorStack.pop();
+                }
+            });
+
+            while (operatorStack.length) {
+                outputQueue.push(new TreeNode(operatorStack.pop()));
+            }
+
+            let stack = [];
+            outputQueue.forEach(node => {
+                if (!isNaN(node.value)) {
+                    stack.push(node);
+                } else {
+                    let right = stack.pop();
+                    let left = stack.pop();
+                    node.left = left;
+                    node.right = right;
+                    stack.push(node);
+                }
+            });
+
+            return stack.pop();
+        }
+
+
+        evaluate(node = this.root) {
+            if (!node.left && !node.right) {
+                return node.value;
+            }
+            let leftVal = this.evaluate(node.left);
+            let rightVal = this.evaluate(node.right);
+
+            switch (node.value) {
+                case '+': return leftVal + rightVal;
+                case '-': return leftVal - rightVal;
+                case '*': return leftVal * rightVal;
+                case '/': return leftVal / rightVal;
+            }
+        }
+      };
+
+      const equalsButton = document.querySelector(".equals");
+      equalsButton.addEventListener("click", () => {
+        try {
+            let tree = new ExpressionTree(data.displayString);
+            data.displayString = tree.evaluate().toString();
+            data.updateDisplay();
+        } catch (error) {
+            data.displayString = "Error";
+            data.updateDisplay();
+        }
+      });
+
+     </script>
+  </body>
+</html>
+
